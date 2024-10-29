@@ -27,8 +27,8 @@ public class AnswerTest {
     }
 
     @Test
-    void 삭제_이력_생성() {
+    void 삭제_이력_생성() throws CannotDeleteException {
         Answer A3 = new Answer(NsUserTest.JAVAJIGI, QuestionTest.Q1, "Answers contents3");
-        assertThat(A3.createDeleteHistory()).isEqualTo(new DeleteHistory(ContentType.ANSWER, A3.getId(), A3.getWriter(), LocalDateTime.now()));
+        assertThat(A3.delete(NsUserTest.JAVAJIGI)).isEqualTo(new DeleteHistory(ContentType.ANSWER, A3.getId(), A3.getWriter(), LocalDateTime.now()));
     }
 }

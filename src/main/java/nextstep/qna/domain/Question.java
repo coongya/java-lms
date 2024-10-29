@@ -4,7 +4,6 @@ import nextstep.qna.CannotDeleteException;
 import nextstep.users.domain.NsUser;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Question {
@@ -66,51 +65,49 @@ public class Question {
 
     public void addAnswer(Answer answer) {
         answer.toQuestion(this);
-        if (answers == null) {
+        if (!hasAnswers()) {
             answers = new Answers(List.of(answer));
             return;
         }
         answers.add(answer);
     }
 
+    public boolean hasAnswers() {
+        return answers != null;
+    }
+
     public boolean isOwner(NsUser loginUser) {
         return writer.equals(loginUser);
     }
 
-    public Question setDeleted(boolean deleted) {
-        this.deleted = deleted;
-        return this;
-    }
 
     public boolean isDeleted() {
         return deleted;
     }
 
-    public List<DeleteHistory> delete(NsUser loginUser) throws CannotDeleteException {
+    public DeleteHistories delete(NsUser loginUser) throws CannotDeleteException {
         if (!isOwner(loginUser)) {
             throw new CannotDeleteException("질문을 삭제할 권한이 없습니다.");
         }
         deleted = true;
 
-        if (answers != null) {
-            answers.deleteAll(loginUser);
+        if (!hasAnswers()) {
+            answers = new Answers();
         }
 
-        return saveDeleteHistories();
+        return createDeleteHistories(loginUser);
     }
 
-    public List<DeleteHistory> saveDeleteHistories() {
-        List<DeleteHistory> deleteHistories = new ArrayList<>();
-        deleteHistories.add(createDeleteHistory());
-
-        if (answers != null) {
-            answers.addDeleteHistories(deleteHistories);
-        }
-
+    private DeleteHistories createDeleteHistories(NsUser loginUser) throws CannotDeleteException {
+        DeleteHistories deleteHistories = answers.deleteAll(loginUser);
+        deleteHistories.addDeleteHistory(createDeleteHistory());
         return deleteHistories;
     }
 
-    public DeleteHistory createDeleteHistory() {
+    private DeleteHistory createDeleteHistory() {
+        if (!isDeleted()) {
+            throw new IllegalStateException("질문이 삭제되지 않아 삭제 이력을 생성할 수 없습니다.");
+        }
         return new DeleteHistory(ContentType.QUESTION, getId(), getWriter(), LocalDateTime.now());
     }
 

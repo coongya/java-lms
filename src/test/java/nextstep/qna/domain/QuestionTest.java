@@ -5,6 +5,7 @@ import nextstep.users.domain.NsUserTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,8 +54,10 @@ public class QuestionTest {
     }
 
     @Test
-    void 삭제_이력_생성() {
+    void 삭제_이력_생성() throws CannotDeleteException {
         Question Q5 = new Question(NsUserTest.JAVAJIGI, "title5", "contents5");
-        assertThat(Q5.createDeleteHistory()).isEqualTo(new DeleteHistory(ContentType.QUESTION, Q5.getId(), Q5.getWriter(), LocalDateTime.now()));
+        assertThat(Q5.delete(NsUserTest.JAVAJIGI)).isEqualTo(new DeleteHistories(List.of(
+                new DeleteHistory(ContentType.QUESTION, Q5.getId(), Q5.getWriter(), LocalDateTime.now())
+        )));
     }
 }

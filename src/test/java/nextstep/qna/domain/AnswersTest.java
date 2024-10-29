@@ -43,14 +43,14 @@ public class AnswersTest {
     }
 
     @Test
-    void 삭제_이력_추가() {
+    void 삭제_이력_추가() throws CannotDeleteException {
         Answer A1 = new Answer(NsUserTest.JAVAJIGI, QuestionTest.Q1, "Answers Contents1");
-        Answer A2 = new Answer(NsUserTest.SANJIGI, QuestionTest.Q1, "Answers Contents2");
+        Answer A2 = new Answer(NsUserTest.JAVAJIGI, QuestionTest.Q1, "Answers Contents2");
         Answers answers = new Answers(Arrays.asList(A1, A2));
-        List<DeleteHistory> deleteHistories = new ArrayList<>();
-        answers.addDeleteHistories(deleteHistories);
 
-        assertThat(deleteHistories).isEqualTo(Arrays.asList(new DeleteHistory(ContentType.ANSWER, A1.getId(), A1.getWriter(), LocalDateTime.now())
-        , new DeleteHistory(ContentType.ANSWER, A2.getId(), A2.getWriter(), LocalDateTime.now())));
+        assertThat(answers.deleteAll(NsUserTest.JAVAJIGI)).isEqualTo(new DeleteHistories(Arrays.asList(
+                new DeleteHistory(ContentType.ANSWER, A1.getId(), A1.getWriter(), LocalDateTime.now()),
+                new DeleteHistory(ContentType.ANSWER, A2.getId(), A2.getWriter(), LocalDateTime.now())
+        )));
     }
 }
